@@ -1,9 +1,30 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useForm } from "react-hook-form"
+import { z } from 'zod'
+import {toast} from "sonner"
+
+
+const SigInForm = z.object({
+    email: z.string().email(),
+})
+
+type sigInFormType = z.infer<typeof SigInForm>
 
 export function SignIn() {
 
+
+    const { register, handleSubmit, formState: { isSubmitting }} = useForm<sigInFormType>()
+
+
+    async function handleSignInSubmit(data: sigInFormType) {
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        console.log(data)
+
+        toast.success("Enviamos um link para seu email")
+
+    }
     return (
         <>
             <div className="p-8 flex justify-center">
@@ -17,13 +38,13 @@ export function SignIn() {
                         </p>
                     </div>
 
-                    <form className="space-y-4">
+                    <form className="space-y-4" onSubmit={handleSubmit(handleSignInSubmit)}>
                         <div className="space-y-2">
                             <Label htmlFor="email">Seu e-mail</Label>
-                            <Input id="email" type="email" />
+                            <Input id="email" type="email" {...register('email')} />
 
                         </div>
-                        <Button className="w-full" type="submit">Acessar painel</Button>
+                        <Button className="w-full" type="submit" disabled={isSubmitting}>Acessar painel</Button>
                     </form>
                 </div>
             </div>
