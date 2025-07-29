@@ -3,31 +3,49 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useForm } from "react-hook-form"
 import { z } from 'zod'
-import {toast} from "sonner"
+import { toast } from "sonner"
+import { Link } from "react-router-dom"
 
 
-const SigInForm = z.object({
+const SignInForm = z.object({
     email: z.string().email(),
 })
 
-type sigInFormType = z.infer<typeof SigInForm>
+type signInFormType = z.infer<typeof SignInForm>
 
 export function SignIn() {
 
 
-    const { register, handleSubmit, formState: { isSubmitting }} = useForm<sigInFormType>()
+    const { register, handleSubmit, formState: { isSubmitting } } = useForm<signInFormType>()
 
 
-    async function handleSignInSubmit(data: sigInFormType) {
-        await new Promise(resolve => setTimeout(resolve, 2000))
-        console.log(data)
+    async function handleSignInSubmit(data: signInFormType) {
 
-        toast.success("Enviamos um link para seu email")
+        try {
 
+            await new Promise(resolve => setTimeout(resolve, 2000))
+            toast.success("enviado", {
+                action: {
+                    label: "reenviar",
+                    onClick: () => handleSignInSubmit(data)
+                },
+            })
+            console.log(data)
+
+            toast.success("Enviamos um link para seu email")
+
+        } catch {
+            toast.error("Credencias invalidas")
+        }
     }
     return (
         <>
             <div className="p-8 flex justify-center">
+                <Button variant="ghost" asChild className="absolute right-8 top-8 ">
+                    <Link to='/sign-up'>
+                        novo estabelecimento
+                    </Link>
+                </Button>
                 <div className="flex w-[350px] flex-col justify-center gap-6">
                     <div className=" flex flex-col gap-2 text-center">
                         <h1 className="text-2xl font-semibold tracking-tight">
