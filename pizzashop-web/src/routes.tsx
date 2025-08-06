@@ -1,10 +1,10 @@
 import { createBrowserRouter } from 'react-router-dom'
-import { Dashboard } from './pages/app/dashboard'
 import { SignIn } from './pages/auth/sign-in'
 import { AppLayout } from './pages/_lauyout/app'
 import { AuthLayout } from './pages/_lauyout/auth'
 import { SignUp } from './pages/auth/sign-up'
 import { Orders } from './pages/app/orders/orders'
+import { Dashboard } from './components/dashboard/dashboard'
 
 
 
