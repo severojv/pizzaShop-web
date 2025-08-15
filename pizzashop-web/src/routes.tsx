@@ -5,13 +5,14 @@ import { AuthLayout } from './pages/_lauyout/auth'
 import { SignUp } from './pages/auth/sign-up'
 import { Orders } from './pages/app/orders/orders'
 import { Dashboard } from './components/dashboard/dashboard'
+import { NotFound } from './pages/404'
 
 
 
 export const router = createBrowserRouter([
     {
         path: '/', element: <AppLayout />,
-
+        errorElement: <NotFound/>,
         children: [{
             path: '/',
             element: <Dashboard />
