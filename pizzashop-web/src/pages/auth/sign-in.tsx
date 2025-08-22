@@ -4,7 +4,9 @@ import { Label } from "@/components/ui/label"
 import { useForm } from "react-hook-form"
 import { z } from 'zod'
 import { toast } from "sonner"
-import { Link } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
+import { useMutation } from "@tanstack/react-query"
+import { signIn } from "@/api/sign-in"
 
 
 const SignInForm = z.object({
@@ -14,16 +16,23 @@ const SignInForm = z.object({
 type signInFormType = z.infer<typeof SignInForm>
 
 export function SignIn() {
+    const [searchParams] = useSearchParams()
 
+    const { register, handleSubmit, formState: { isSubmitting } } = useForm<signInFormType>({
+        defaultValues: {
+            email: searchParams.get("email") ?? '',
 
-    const { register, handleSubmit, formState: { isSubmitting } } = useForm<signInFormType>()
+        }
+    })
 
-
+    const { mutateAsync: authenticate } = useMutation({
+        mutationFn: signIn,
+    })
     async function handleSignInSubmit(data: signInFormType) {
 
         try {
 
-            await new Promise(resolve => setTimeout(resolve, 2000))
+            await authenticate({ email: data.email })
             toast.success("enviado", {
                 action: {
                     label: "reenviar",
