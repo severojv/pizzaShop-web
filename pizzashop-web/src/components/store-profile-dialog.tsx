@@ -1,4 +1,4 @@
-import { getMenagedRestaurant } from "@/api/get-menaged-restaurant";
+import { getMenagedRestaurant, type GetMenagedRestaurant } from "@/api/get-menaged-restaurant";
 import { Button } from "./ui/button";
 import { DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Input } from "./ui/input";
@@ -10,10 +10,11 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { updateProfile } from "@/api/update-profile";
 import { toast } from "sonner";
+import { queryClient } from "@/lib/react-query";
 
 const storeProfileSchema = z.object({
     name: z.string().min(1),
-    description: z.string(),
+    description: z.string().nullable(),
 })
 
 type StoreProfileSchema = z.infer<typeof storeProfileSchema>
@@ -22,7 +23,7 @@ export function StoreProfileDialog() {
     const { data: menagedRestaurant } = useQuery({
         queryKey: ['menaged-restaurant'],
         queryFn: getMenagedRestaurant,
-        staleTime:Infinity,
+        staleTime: Infinity,
     })
 
 
@@ -34,8 +35,34 @@ export function StoreProfileDialog() {
         }
     })
 
+
+
+    function updateMenagedRestaurantCached({ name, description }: StoreProfileSchema) {
+        const cached = queryClient.getQueryData<GetMenagedRestaurant>(['menaged-restaurant'])
+        if (cached) {
+            queryClient.setQueryData<GetMenagedRestaurant>(['menaged-restaurant'], {
+                ...cached,
+                name,
+                description,
+
+            })
+        }
+        return {cached}    //context do Error
+    }
+
+
     const { mutateAsync: updateProfileFn } = useMutation({
-        mutationFn: updateProfile
+        mutationFn: updateProfile,
+        onMutate({ name, description }) {                       //atualizar informação antes do sucess
+            const { cached } = updateMenagedRestaurantCached({ name, description })
+            return { previusProfile: cached }
+        },
+        onError(_, __, context) {                       //Erro -> volta os dados anteriores
+            if (context?.previusProfile) {
+                updateMenagedRestaurantCached(context.previusProfile)
+            }
+        },
+
     })
     async function handleUpdateProfile(data: StoreProfileSchema) {
         try {
